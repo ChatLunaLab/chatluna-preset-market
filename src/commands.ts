@@ -11,7 +11,7 @@ const logger = createLogger('@dingyi222666/chathub-preset-market/commands')
 
 export function apply(ctx: Context, config: PresetMarketPlugin.Config) {
 
-   
+    let marketPresets: MarketPresets
 
     ctx.command('chathub.preset.list', '列出预设仓库的预设')
         .alias("预设仓库列表")
@@ -19,7 +19,9 @@ export function apply(ctx: Context, config: PresetMarketPlugin.Config) {
             authority: 1,
         })
         .action(async ({ options, session }) => {
-            const presets = await getPresetList(config)
+            const presets = (await getPresetList(config))
+
+            marketPresets = presets
 
             const page = options.page ?? 1
 
