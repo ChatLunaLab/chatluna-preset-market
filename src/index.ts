@@ -32,7 +32,6 @@ namespace PresetMarketPlugin {
     ]) as Schema<PresetMarketPlugin.Config>
 
 
-
     export const using = ['chathub']
 }
 
