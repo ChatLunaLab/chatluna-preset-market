@@ -1,7 +1,7 @@
 {
   "name": "@dingyi222666/koishi-plugin-chathub-preset-market",
   "description": "preset market for chathub",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "files": [
@@ -9,13 +9,39 @@
     "dist"
   ],
   "license": "MIT",
-  "scripts": {},
   "keywords": [
     "chatbot",
     "koishi",
-    "plugin"
+    "plugin",
+    "service",
+    "chatgpt",
+    "chathub",
+    "preset",
+    "market"
   ],
+  "dependencies": {
+  },
+  "devDependencies": {
+    "koishi": "^4.13.7"
+  },
   "peerDependencies": {
-    "koishi": "4.13.7"
+    "@dingyi222666/koishi-plugin-chathub": "^1.0.0-alpha.14",
+    "koishi": "^4.13.0"
+  },
+  "scripts": {
+    "build": "yakumo build",
+    "bump": "yakumo version",
+    "dep": "yakumo upgrade",
+    "pub": "yakumo publish"
+  },
+  "koishi": {
+    "description": {
+      "zh": "为 ChatHub 提供预设仓库服务的插件"
+    },
+    "service": {
+      "required": [
+        "chathub"
+      ]
+    }
   }
 }
