@@ -3,7 +3,7 @@ import { request } from "@dingyi222666/koishi-plugin-chathub/lib/llm-core/utils/
 import fs from 'fs/promises'
 import PresetMarketPlugin from '.';
 import { MarketPresets } from './types';
-import { preset as localPresetRepository } from "@dingyi222666/koishi-plugin-chathub/lib/middlewares/resolve_preset"
+import { getPresetInstance } from "@dingyi222666/koishi-plugin-chathub/lib/index"
 import { createLogger } from "@dingyi222666/koishi-plugin-chathub/lib/llm-core/utils/logger"
 import { PresetTemplate } from '@dingyi222666/koishi-plugin-chathub/lib/llm-core/prompt';
 
@@ -13,7 +13,9 @@ export function apply(ctx: Context, config: PresetMarketPlugin.Config) {
 
     let marketPresets: MarketPresets
 
-    ctx.command('chathub.preset.list', '列出预设仓库的预设')
+    ctx.command('chathub.preset-market', 'chathub 预设仓库相关命令')
+
+    ctx.command('chathub.preset-market.list', '列出预设仓库的预设')
         .alias("预设仓库列表")
         .option("page", "-p <page:number> 选择页数", {
             authority: 1,
@@ -46,10 +48,12 @@ export function apply(ctx: Context, config: PresetMarketPlugin.Config) {
             await session.send(buffer.join('\n'))
         })
 
-    ctx.command('chathub.preset.download <presetName:string>', '下载预设')
+    ctx.command('chathub.preset-market.download <presetName:string>', '下载预设')
         .alias("下载预设")
         .action(async ({ options, session }, presetName) => {
             const presets = marketPresets ?? (await getPresetList(config))
+
+            const localPresetRepository = getPresetInstance()
 
             marketPresets = presets
 
@@ -87,7 +91,7 @@ export function apply(ctx: Context, config: PresetMarketPlugin.Config) {
             return `下载预设 ${presetName} 成功，快使用 chathub.listpreset 查看吧`
         })
 
-    ctx.command('chathub.preset.upload', '上传预设')
+    ctx.command('chathub.preset-market.upload', '上传预设')
         .alias("上传预设")
         .action(async ({ options, session }) => {
             return "非常抱歉，由于我们使用 GitHub 作为预设仓库，请有需要上传预设的用户前往此仓库提交 Pull Request: https://github.com/ChatHubLab/awesome-chathub-presets"
