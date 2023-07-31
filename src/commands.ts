@@ -88,7 +88,7 @@ export function apply(ctx: Context, config: PresetMarketPlugin.Config) {
 
             await downloadPreset(config.repositoryUrlEndPoint, preset.rawPath, downloadPath)
 
-            return `下载预设 ${presetName} 成功，快使用 chathub.listpreset 查看吧`
+            return `下载预设 ${presetName} 成功，快使用 chathub.preset.list 查看吧`
         })
 
     ctx.command('chathub.preset-market.upload', '上传预设')
