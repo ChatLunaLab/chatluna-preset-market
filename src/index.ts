@@ -1,11 +1,6 @@
 import { Context, Schema } from 'koishi'
 
-import { ModelProvider, CreateParams, BaseProvider, ChatHubBaseChatModel } from '@dingyi222666/koishi-plugin-chathub/lib/llm-core/model/base'
-import { PromiseLikeDisposeable } from '@dingyi222666/koishi-plugin-chathub/lib/llm-core/utils/types'
 import { ChatHubPlugin } from "@dingyi222666/koishi-plugin-chathub/lib/services/chat"
-import { BaseChatModel } from 'langchain/chat_models/base'
-import { CallbackManagerForLLMRun, Callbacks } from 'langchain/callbacks'
-import { BaseMessage, ChatResult, ChatGeneration, AIMessage } from 'langchain/schema'
 
 class PresetMarketPlugin extends ChatHubPlugin<PresetMarketPlugin.Config> {
     name = '@dingyi222666/chathub-preset-market'
