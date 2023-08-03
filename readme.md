@@ -4,7 +4,7 @@
 
 _为 ChatHub 提供预设仓库服务。_
 
-## [![npm](https://img.shields.io/npm/v/@dingyi222666/koishi-plugin-chathub-preset-market)](https://www.npmjs.com/package/@dingyi222666/koishi-plugin-chathub-preset-market) [![npm](https://img.shields.io/npm/dm/@dingyi222666/koishi-plugin-chathub-preset-market)](https://www.npmjs.com/package/@dingyi222666/koishi-plugin-chathub-preset-market) ![node version](https://img.shields.io/badge/node-%3E=18-green) ![github top language](https://img.shields.io/github/languages/top/dingyi222666/koishi-plugin-chathub-preset-market?logo=github)
+## [![npm](https://img.shields.io/npm/v/@dingyi222666/koishi-plugin-chathub-preset-market)](https://www.npmjs.com/package/@dingyi222666/koishi-plugin-chathub-preset-market) [![npm](https://img.shields.io/npm/dm/@dingyi222666/koishi-plugin-chathub-preset-market)](https://www.npmjs.com/package/@dingyi222666/koishi-plugin-chathub-preset-market) ![node version](https://img.shields.io/badge/node-%3E=18-green) ![github top language](https://img.shields.io/github/languages/top/ChatHubLab/koishi-plugin-chathub-preset-market?logo=github)
 
 </div>
 

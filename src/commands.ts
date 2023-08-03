@@ -113,10 +113,9 @@ async function getPresetList(config: PresetMarketPlugin.Config) {
         return presetList
     } catch (error) {
         logger.error(error)
-        if (error.stack) {
-            logger.error(error.stack)
+        if (error.cause) {
+            logger.error(error.cause)
         }
-
         const rawText = (await fs.readFile("./data/chathub/temp/preset_market.json")).toString('utf-8')
 
         const presetList = JSON.parse(rawText) as MarketPresets
