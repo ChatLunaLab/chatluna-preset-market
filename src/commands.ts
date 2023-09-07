@@ -1,15 +1,15 @@
 import { Context } from 'koishi';
-import { request } from "@dingyi222666/koishi-plugin-chathub/lib/llm-core/utils/request"
+import { request } from "@dingyi222666/koishi-plugin-chathub/lib/utils/request"
 import fs from 'fs/promises'
-import PresetMarketPlugin from '.';
 import { MarketPresets } from './types';
-import { getPresetInstance } from "@dingyi222666/koishi-plugin-chathub/lib/index"
-import { createLogger } from "@dingyi222666/koishi-plugin-chathub/lib/llm-core/utils/logger"
+
+import { createLogger } from "@dingyi222666/koishi-plugin-chathub/lib/utils/logger"
 import { PresetTemplate } from '@dingyi222666/koishi-plugin-chathub/lib/llm-core/prompt';
+import { Config } from '.';
 
-const logger = createLogger('@dingyi222666/chathub-preset-market/commands')
+const logger = createLogger('chathub-preset-market')
 
-export function apply(ctx: Context, config: PresetMarketPlugin.Config) {
+export function apply(ctx: Context, config: Config) {
 
     let marketPresets: MarketPresets
 
@@ -53,7 +53,7 @@ export function apply(ctx: Context, config: PresetMarketPlugin.Config) {
         .action(async ({ options, session }, presetName) => {
             const presets = marketPresets ?? (await getPresetList(config))
 
-            const localPresetRepository = getPresetInstance()
+            const localPresetRepository = ctx.chathub.preset
 
             marketPresets = presets
 
@@ -99,7 +99,7 @@ export function apply(ctx: Context, config: PresetMarketPlugin.Config) {
 }
 
 
-async function getPresetList(config: PresetMarketPlugin.Config) {
+async function getPresetList(config: Config) {
 
     try {
         const response = await request.fetch(`${config.repositoryUrlEndPoint}/preset/presets.json`)
