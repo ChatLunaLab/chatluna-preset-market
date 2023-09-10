@@ -1,4 +1,3 @@
-
 export interface MarketPreset {
     name: string
     keywords: string[]

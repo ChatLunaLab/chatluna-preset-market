@@ -1,27 +1,26 @@
-import { Context } from 'koishi';
-import { request } from "@dingyi222666/koishi-plugin-chathub/lib/utils/request"
+import { Context } from 'koishi'
+import { chathubFetch } from '@dingyi222666/koishi-plugin-chathub/lib/utils/request'
 import fs from 'fs/promises'
-import { MarketPresets } from './types';
+import { MarketPresets } from './types'
 
-import { createLogger } from "@dingyi222666/koishi-plugin-chathub/lib/utils/logger"
-import { PresetTemplate } from '@dingyi222666/koishi-plugin-chathub/lib/llm-core/prompt';
-import { Config } from '.';
+import { createLogger } from '@dingyi222666/koishi-plugin-chathub/lib/utils/logger'
+import { PresetTemplate } from '@dingyi222666/koishi-plugin-chathub/lib/llm-core/prompt'
+import { Config } from '.'
 
 const logger = createLogger('chathub-preset-market')
 
 export function apply(ctx: Context, config: Config) {
-
     let marketPresets: MarketPresets
 
     ctx.command('chathub.preset-market', 'chathub 预设仓库相关命令')
 
     ctx.command('chathub.preset-market.list', '列出预设仓库的预设')
-        .alias("预设仓库列表")
-        .option("page", "-p <page:number> 选择页数", {
-            authority: 1,
+        .alias('预设仓库列表')
+        .option('page', '-p <page:number> 选择页数', {
+            authority: 1
         })
         .action(async ({ options, session }) => {
-            const presets = (await getPresetList(config))
+            const presets = await getPresetList(config)
 
             marketPresets = presets
 
@@ -39,7 +38,7 @@ export function apply(ctx: Context, config: Config) {
 
             for (const preset of presetList) {
                 buffer.push(`名称：${preset.name}`)
-                buffer.push(`关键词: ${preset.keywords.join(" ,")}`)
+                buffer.push(`关键词: ${preset.keywords.join(' ,')}`)
                 buffer.push('')
             }
 
@@ -49,7 +48,7 @@ export function apply(ctx: Context, config: Config) {
         })
 
     ctx.command('chathub.preset-market.download <presetName:string>', '下载预设')
-        .alias("下载预设")
+        .alias('下载预设')
         .action(async ({ options, session }, presetName) => {
             const presets = marketPresets ?? (await getPresetList(config))
 
@@ -57,7 +56,9 @@ export function apply(ctx: Context, config: Config) {
 
             marketPresets = presets
 
-            const preset = presets.find((preset) => preset.name === presetName || preset.keywords.includes(presetName))
+            const preset = presets.find(
+                (preset) => preset.name === presetName || preset.keywords.includes(presetName)
+            )
 
             if (!preset) {
                 await session.send(`没有找到预设 ${presetName}`)
@@ -71,20 +72,24 @@ export function apply(ctx: Context, config: Config) {
             }
 
             if (localPreset) {
-                await session.send(`已经存在使用了同一关键词的预设 ${presetName}，回复大写 Y 则覆盖，否则取消。是否覆盖？`)
+                await session.send(
+                    `已经存在使用了同一关键词的预设 ${presetName}，回复大写 Y 则覆盖，否则取消。是否覆盖？`
+                )
 
                 const input = await session.prompt(1000 * 30)
 
                 if (!input) {
                     await session.send(`超时，已取消下载预设 ${presetName}`)
                     return
-                } else if (input !== "Y") {
+                } else if (input !== 'Y') {
                     await session.send(`已取消下载预设 ${presetName}`)
                     return
                 }
             }
 
-            const downloadPath = localPreset ? localPreset.path : localPresetRepository.resolvePresetDir() + `/${presetName}.yml`
+            const downloadPath = localPreset
+                ? localPreset.path
+                : localPresetRepository.resolvePresetDir() + `/${presetName}.yml`
 
             await downloadPreset(config.repositoryUrlEndPoint, preset.rawPath, downloadPath)
 
@@ -92,23 +97,21 @@ export function apply(ctx: Context, config: Config) {
         })
 
     ctx.command('chathub.preset-market.upload', '上传预设')
-        .alias("上传预设")
+        .alias('上传预设')
         .action(async ({ options, session }) => {
-            return "非常抱歉，由于我们使用 GitHub 作为预设仓库，请有需要上传预设的用户前往此仓库提交 Pull Request: https://github.com/ChatHubLab/awesome-chathub-presets"
+            return '非常抱歉，由于我们使用 GitHub 作为预设仓库，请有需要上传预设的用户前往此仓库提交 Pull Request: https://github.com/ChatHubLab/awesome-chathub-presets'
         })
 }
 
-
 async function getPresetList(config: Config) {
-
     try {
-        const response = await request.fetch(`${config.repositoryUrlEndPoint}/preset/presets.json`)
+        const response = await chathubFetch(`${config.repositoryUrlEndPoint}/preset/presets.json`)
 
         const rawText = await response.text()
 
         const presetList = JSON.parse(rawText) as MarketPresets
 
-        fs.writeFile("./data/chathub/temp/preset_market.json", rawText)
+        fs.writeFile('./data/chathub/temp/preset_market.json', rawText)
 
         return presetList
     } catch (error) {
@@ -116,7 +119,9 @@ async function getPresetList(config: Config) {
         if (error.cause) {
             logger.error(error.cause)
         }
-        const rawText = (await fs.readFile("./data/chathub/temp/preset_market.json")).toString('utf-8')
+        const rawText = (await fs.readFile('./data/chathub/temp/preset_market.json')).toString(
+            'utf-8'
+        )
 
         const presetList = JSON.parse(rawText) as MarketPresets
 
@@ -124,10 +129,17 @@ async function getPresetList(config: Config) {
     }
 }
 
-async function downloadPreset(repositoryUrlEndPoint: string, rawPath: string, downloadPath: string) {
-    const url = rawPath.replace("https://raw.githubusercontent.com/ChatHubLab/awesome-chathub-presets", repositoryUrlEndPoint)
+async function downloadPreset(
+    repositoryUrlEndPoint: string,
+    rawPath: string,
+    downloadPath: string
+) {
+    const url = rawPath.replace(
+        'https://raw.githubusercontent.com/ChatHubLab/awesome-chathub-presets',
+        repositoryUrlEndPoint
+    )
 
-    const response = await request.fetch(url)
+    const response = await chathubFetch(url)
 
     const rawText = await response.text()
 
