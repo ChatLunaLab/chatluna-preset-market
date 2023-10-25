@@ -16,7 +16,9 @@ export const Config = Schema.intersect([
     Schema.object({
         repositoryUrlEndPoint: Schema.string()
             .description('预设市场的接入点')
-            .default('https://raw.githubusercontent.com/ChatHubLab/awesome-chathub-presets')
+            .default(
+                'https://raw.githubusercontent.com/ChatHubLab/awesome-chathub-presets'
+            )
     }).description('请求配置')
 ]) as Schema<Config>
 

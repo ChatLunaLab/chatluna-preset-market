@@ -42,12 +42,17 @@ export function apply(ctx: Context, config: Config) {
                 buffer.push('')
             }
 
-            buffer.push(`当前页数：(${page}/${Math.ceil(presets.length / pageSize)}）`)
+            buffer.push(
+                `当前页数：(${page}/${Math.ceil(presets.length / pageSize)}）`
+            )
 
             await session.send(buffer.join('\n'))
         })
 
-    ctx.command('chathub.preset-market.download <presetName:string>', '下载预设')
+    ctx.command(
+        'chathub.preset-market.download <presetName:string>',
+        '下载预设'
+    )
         .alias('下载预设')
         .action(async ({ options, session }, presetName) => {
             const presets = marketPresets ?? (await getPresetList(config))
@@ -57,7 +62,9 @@ export function apply(ctx: Context, config: Config) {
             marketPresets = presets
 
             const preset = presets.find(
-                (preset) => preset.name === presetName || preset.keywords.includes(presetName)
+                (preset) =>
+                    preset.name === presetName ||
+                    preset.keywords.includes(presetName)
             )
 
             if (!preset) {
@@ -68,7 +75,11 @@ export function apply(ctx: Context, config: Config) {
             let localPreset: PresetTemplate
 
             for (const presetKeyWord of preset.keywords) {
-                localPreset = await localPresetRepository.getPreset(presetKeyWord, false, false)
+                localPreset = await localPresetRepository.getPreset(
+                    presetKeyWord,
+                    false,
+                    false
+                )
             }
 
             if (localPreset) {
@@ -89,9 +100,14 @@ export function apply(ctx: Context, config: Config) {
 
             const downloadPath = localPreset
                 ? localPreset.path
-                : localPresetRepository.resolvePresetDir() + `/${presetName}.yml`
+                : localPresetRepository.resolvePresetDir() +
+                  `/${presetName}.yml`
 
-            await downloadPreset(config.repositoryUrlEndPoint, preset.rawPath, downloadPath)
+            await downloadPreset(
+                config.repositoryUrlEndPoint,
+                preset.rawPath,
+                downloadPath
+            )
 
             return `下载预设 ${presetName} 成功，快使用 chathub.preset.list 查看吧`
         })
@@ -105,7 +121,9 @@ export function apply(ctx: Context, config: Config) {
 
 async function getPresetList(config: Config) {
     try {
-        const response = await chathubFetch(`${config.repositoryUrlEndPoint}/preset/presets.json`)
+        const response = await chathubFetch(
+            `${config.repositoryUrlEndPoint}/preset/presets.json`
+        )
 
         const rawText = await response.text()
 
@@ -119,9 +137,9 @@ async function getPresetList(config: Config) {
         if (error.cause) {
             logger.error(error.cause)
         }
-        const rawText = (await fs.readFile('./data/chathub/temp/preset_market.json')).toString(
-            'utf-8'
-        )
+        const rawText = (
+            await fs.readFile('./data/chathub/temp/preset_market.json')
+        ).toString('utf-8')
 
         const presetList = JSON.parse(rawText) as MarketPresets
 
