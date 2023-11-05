@@ -31,12 +31,12 @@
   "homepage": "https://github.com/ChatHubLab/chathub-preset-market#readme",
   "dependencies": {},
   "devDependencies": {
-    "koishi": "^4.15.2",
+    "koishi": "^4.15.3",
     "@dingyi222666/koishi-plugin-chathub": "^1.0.0-beta.10"
   },
   "peerDependencies": {
     "@dingyi222666/koishi-plugin-chathub": "^1.0.0-beta.10",
-    "koishi": "^4.15.0"
+    "koishi": "^4.15.3"
   },
   "scripts": {
     "build": "yakumo build",

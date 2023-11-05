@@ -22,4 +22,4 @@ export const Config = Schema.intersect([
     }).description('请求配置')
 ]) as Schema<Config>
 
-export const using = ['chathub']
+export const inject = ['chathub']

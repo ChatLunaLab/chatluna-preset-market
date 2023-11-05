@@ -1,4 +1,4 @@
-import { Context } from 'koishi'
+import { Context, Logger } from 'koishi'
 import { chathubFetch } from '@dingyi222666/koishi-plugin-chathub/lib/utils/request'
 import fs from 'fs/promises'
 import { MarketPresets } from './types'
@@ -7,9 +7,10 @@ import { createLogger } from '@dingyi222666/koishi-plugin-chathub/lib/utils/logg
 import { PresetTemplate } from '@dingyi222666/koishi-plugin-chathub/lib/llm-core/prompt'
 import { Config } from '.'
 
-const logger = createLogger('chathub-preset-market')
+let logger: Logger
 
 export function apply(ctx: Context, config: Config) {
+    logger = createLogger(ctx, 'chathub-preset-market')
     let marketPresets: MarketPresets
 
     ctx.command('chathub.preset-market', 'chathub 预设仓库相关命令')
