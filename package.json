@@ -15,8 +15,7 @@
         "plugin",
         "service",
         "chatgpt",
-        "chathub",
-        "preset",
+        "chatluna",
         "market"
     ],
     "author": "dingyi222666 <dingyi222666@foxmail.com>",
@@ -50,7 +49,7 @@
         },
         "service": {
             "required": [
-                "chathub"
+                "chatluna"
             ]
         }
     }
