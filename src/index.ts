@@ -1,6 +1,6 @@
 import { Context, Schema } from 'koishi'
 
-import { ChatHubPlugin } from '@dingyi222666/koishi-plugin-chathub/lib/services/chat'
+import { ChatLunaPlugin } from 'koishi-plugin-chatluna/lib/services/chat'
 
 export function apply(ctx: Context, config: Config) {
     ctx.on('ready', async () => {
@@ -8,7 +8,7 @@ export function apply(ctx: Context, config: Config) {
         await require('./commands').apply(ctx, config)
     })
 }
-export interface Config extends ChatHubPlugin.Config {
+export interface Config extends ChatLunaPlugin.Config {
     repositoryUrlEndPoint: string
 }
 
@@ -22,4 +22,4 @@ export const Config = Schema.intersect([
     }).description('请求配置')
 ]) as Schema<Config>
 
-export const inject = ['chathub']
+export const inject = ['chatluna']

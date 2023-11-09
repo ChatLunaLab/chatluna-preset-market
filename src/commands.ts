@@ -1,10 +1,10 @@
 import { Context, Logger } from 'koishi'
-import { chathubFetch } from '@dingyi222666/koishi-plugin-chathub/lib/utils/request'
+import { chatLunaFetch } from 'koishi-plugin-chatluna/lib/utils/request'
 import fs from 'fs/promises'
 import { MarketPresets } from './types'
 
-import { createLogger } from '@dingyi222666/koishi-plugin-chathub/lib/utils/logger'
-import { PresetTemplate } from '@dingyi222666/koishi-plugin-chathub/lib/llm-core/prompt'
+import { createLogger } from 'koishi-plugin-chatluna/lib/utils/logger'
+import { PresetTemplate } from 'koishi-plugin-chatluna/lib/llm-core/prompt'
 import { Config } from '.'
 
 let logger: Logger
@@ -58,7 +58,7 @@ export function apply(ctx: Context, config: Config) {
         .action(async ({ options, session }, presetName) => {
             const presets = marketPresets ?? (await getPresetList(config))
 
-            const localPresetRepository = ctx.chathub.preset
+            const localPresetRepository = ctx.chatluna.preset
 
             marketPresets = presets
 
@@ -122,7 +122,7 @@ export function apply(ctx: Context, config: Config) {
 
 async function getPresetList(config: Config) {
     try {
-        const response = await chathubFetch(
+        const response = await chatLunaFetch(
             `${config.repositoryUrlEndPoint}/preset/presets.json`
         )
 
@@ -158,7 +158,7 @@ async function downloadPreset(
         repositoryUrlEndPoint
     )
 
-    const response = await chathubFetch(url)
+    const response = await chatLunaFetch(url)
 
     const rawText = await response.text()
 
