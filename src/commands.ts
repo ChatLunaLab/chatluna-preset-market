@@ -10,12 +10,12 @@ import { Config } from '.'
 let logger: Logger
 
 export function apply(ctx: Context, config: Config) {
-    logger = createLogger(ctx, 'chathub-preset-market')
+    logger = createLogger(ctx, 'chatluna-preset-market')
     let marketPresets: MarketPresets
 
-    ctx.command('chathub.preset-market', 'chathub 预设仓库相关命令')
+    ctx.command('chatluna.preset-market', 'chathub 预设仓库相关命令')
 
-    ctx.command('chathub.preset-market.list', '列出预设仓库的预设')
+    ctx.command('chatluna.preset-market.list', '列出预设仓库的预设')
         .alias('预设仓库列表')
         .option('page', '-p <page:number> 选择页数', {
             authority: 1
@@ -51,7 +51,7 @@ export function apply(ctx: Context, config: Config) {
         })
 
     ctx.command(
-        'chathub.preset-market.download <presetName:string>',
+        'chatluna.preset-market.download <presetName:string>',
         '下载预设'
     )
         .alias('下载预设')
