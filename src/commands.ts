@@ -110,10 +110,10 @@ export function apply(ctx: Context, config: Config) {
                 downloadPath
             )
 
-            return `下载预设 ${presetName} 成功，快使用 chathub.preset.list 查看吧`
+            return `下载预设 ${presetName} 成功，快使用 chatluna.preset.list 查看吧`
         })
 
-    ctx.command('chathub.preset-market.upload', '上传预设')
+    ctx.command('chatluna.preset-market.upload', '上传预设')
         .alias('上传预设')
         .action(async ({ options, session }) => {
             return '非常抱歉，由于我们使用 GitHub 作为预设仓库，请有需要上传预设的用户前往此仓库提交 Pull Request: https://github.com/ChatHubLab/awesome-chathub-presets'
