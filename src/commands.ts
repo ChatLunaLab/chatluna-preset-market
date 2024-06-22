@@ -1,10 +1,10 @@
 import { Context, Logger } from 'koishi'
-import { chatLunaFetch } from 'koishi-plugin-chatluna/lib/utils/request'
+import { chatLunaFetch } from 'koishi-plugin-chatluna/utils/request'
 import fs from 'fs/promises'
 import { MarketPresets } from './types'
 
-import { createLogger } from 'koishi-plugin-chatluna/lib/utils/logger'
-import { PresetTemplate } from 'koishi-plugin-chatluna/lib/llm-core/prompt'
+import { createLogger } from 'koishi-plugin-chatluna/utils/logger'
+import { PresetTemplate } from 'koishi-plugin-chatluna/llm-core/prompt'
 import { Config } from '.'
 
 let logger: Logger

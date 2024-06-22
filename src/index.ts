@@ -1,13 +1,17 @@
 import { Context, Schema } from 'koishi'
 
-import { ChatLunaPlugin } from 'koishi-plugin-chatluna/lib/services/chat'
+import { ChatLunaPlugin } from 'koishi-plugin-chatluna/services/chat'
 
 export function apply(ctx: Context, config: Config) {
     ctx.on('ready', async () => {
         // eslint-disable-next-line @typescript-eslint/no-var-requires
-        await require('./commands').apply(ctx, config)
+        ;(await require('koishi-plugin-chatluna-preset-market/commands')).apply(
+            ctx,
+            config
+        )
     })
 }
+
 export interface Config extends ChatLunaPlugin.Config {
     repositoryUrlEndPoint: string
 }
