@@ -1,11 +1,11 @@
 import { Context, Schema } from 'koishi'
 
 import { ChatLunaPlugin } from 'koishi-plugin-chatluna/services/chat'
+import { apply as commands } from './commands'
 
 export function apply(ctx: Context, config: Config) {
     ctx.on('ready', async () => {
-        // eslint-disable-next-line @typescript-eslint/no-var-requires
-        ;(await require('koishi-plugin-chatluna-preset-market/commands')).apply(
+        commands(
             ctx,
             config
         )
@@ -13,16 +13,16 @@ export function apply(ctx: Context, config: Config) {
 }
 
 export interface Config extends ChatLunaPlugin.Config {
-    repositoryUrlEndPoint: string
+    repositoryEndpoints: string[]
 }
 
 export const Config = Schema.intersect([
     Schema.object({
-        repositoryUrlEndPoint: Schema.string()
-            .description('预设市场的接入点')
-            .default(
-                'https://raw.githubusercontent.com/ChatHubLab/awesome-chathub-presets'
-            )
+        repositoryEndpoints: Schema.array(
+            Schema.string()
+        )
+            .description('预设市场的接入地址（可以輸入多个仓库，前面仓库含有的预设将会被后面的覆盖，理解为先后覆盖）')
+            .default(['https://mirror.ghproxy.com/https://raw.githubusercontent.com/ChatLunaLab/awesome-chatluna-presets'])
     }).description('请求配置')
 ]) as Schema<Config>
 
