@@ -62,7 +62,9 @@ export function apply(ctx: Context, config: Config) {
             marketPresets = presets;
 
             const presetList = presets.filter((preset) =>
-                preset.keywords.includes(keyword),
+                preset.keywords.some(
+                    (_keyword) => _keyword.indexOf(keyword) !== -1,
+                ),
             );
 
             const page = options.page ?? 1;
@@ -87,7 +89,7 @@ export function apply(ctx: Context, config: Config) {
             }
 
             buffer.push(
-                `当前页数：(${page}/${Math.ceil(presets.length / pageSize)}）`,
+                `当前页数：(${page}/${Math.ceil(presetList.length / pageSize)}）`,
             );
 
             await session.send(buffer.join("\n"));

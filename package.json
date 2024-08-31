@@ -1,7 +1,7 @@
 {
   "name": "koishi-plugin-chatluna-preset-market",
   "description": "preset market for chatluna",
-  "version": "1.0.14",
+  "version": "1.0.15",
   "main": "lib/index.cjs",
   "module": "lib/index.mjs",
   "typings": "lib/index.d.ts",
@@ -15,12 +15,7 @@
       "require": "./lib/index.cjs",
       "types": "./lib/index.d.ts"
     },
-    "./package.json": "./package.json",
-    "./commands": {
-      "import": "./lib/commands.mjs",
-      "require": "./lib/commands.cjs",
-      "types": "./lib/commands.d.ts"
-    }
+    "./package.json": "./package.json"
   },
   "type": "module",
   "engines": {
