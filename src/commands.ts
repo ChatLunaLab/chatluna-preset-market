@@ -11,20 +11,40 @@ import { mergeMarketPresets } from "./utils";
 let logger: Logger;
 
 export function apply(ctx: Context, config: Config) {
-    logger = createLogger(ctx, "chatluna-preset-market");
+    logger = createLogger(ctx, "chatluna-market");
     let marketPresets: MarketPresets;
 
-    ctx.command("chatluna.preset-market", "chathub 预设仓库相关命令");
+    ctx.command("chatluna.market", "chathub 预设仓库相关命令");
 
-    ctx.command("chatluna.preset-market.list", "列出预设仓库的预设")
+    ctx.command("chatluna.market.list", "列出预设仓库的预设")
         .alias("预设仓库列表")
         .option("page", "-p <page:number> 选择页数", {
             authority: 1,
         })
+        .option("type", "-t <type:string> 选择类型", {
+            authority: 1,
+        })
         .action(async ({ options, session }) => {
-            const presets = await getPresetLists(config);
+            let presets = await getPresetLists(config);
 
             marketPresets = presets;
+
+            if (
+                options.type != null &&
+                !["main", "character"].includes(options.type)
+            ) {
+                return "预设类型错误，只能是 main 或者 character。";
+            }
+
+            presets = presets.filter(
+                (preset) =>
+                    options.type == null || preset.type === options.type,
+            );
+
+            if (presets.length === 0) {
+                await session.send("当前没有预设");
+                return;
+            }
 
             const page = options.page ?? 1;
 
@@ -40,7 +60,11 @@ export function apply(ctx: Context, config: Config) {
 
             for (const preset of presetList) {
                 buffer.push(`名称：${preset.name}`);
+
                 buffer.push(`关键词: ${preset.keywords.join(" ,")}`);
+                buffer.push(
+                    `类型: ${preset.type === "main" ? "主插件预设" : "伪装预设"}`,
+                );
                 buffer.push("");
             }
 
@@ -51,21 +75,33 @@ export function apply(ctx: Context, config: Config) {
             await session.send(buffer.join("\n"));
         });
 
-    ctx.command("chatluna.preset-market.search <keyword:string>", "搜索预设")
+    ctx.command("chatluna.market.search <keyword:string>", "搜索预设")
         .alias("搜索预设")
         .option("page", "-p <page:number> 选择页数", {
+            authority: 1,
+        })
+        .option("type", "-t <type:string> 选择类型", {
             authority: 1,
         })
         .action(async ({ options, session }, keyword) => {
             const presets = await getPresetLists(config);
 
-            marketPresets = presets;
+            if (
+                options.type != null &&
+                !["main", "character"].includes(options.type)
+            ) {
+                return "预设类型错误，只能是 main 或者 character。";
+            }
 
-            const presetList = presets.filter((preset) =>
-                preset.keywords.some(
-                    (_keyword) => _keyword.indexOf(keyword) !== -1,
-                ),
+            const presetList = presets.filter(
+                (preset) =>
+                    preset.keywords.some(
+                        (_keyword) => _keyword.indexOf(keyword) !== -1,
+                    ) &&
+                    (options.type == null || preset.type === options.type),
             );
+
+            marketPresets = presets;
 
             const page = options.page ?? 1;
 
@@ -85,6 +121,9 @@ export function apply(ctx: Context, config: Config) {
             for (const preset of presetList) {
                 buffer.push(`名称：${preset.name}`);
                 buffer.push(`关键词: ${preset.keywords.join(" ,")}`);
+                buffer.push(
+                    `类型: ${preset.type === "main" ? "主插件预设" : "伪装预设"}`,
+                );
                 buffer.push("");
             }
 
@@ -95,7 +134,7 @@ export function apply(ctx: Context, config: Config) {
             await session.send(buffer.join("\n"));
         });
 
-    ctx.command("chatluna.preset-market.refresh", "刷新预设仓库")
+    ctx.command("chatluna.market.refresh", "刷新预设仓库")
         .alias("刷新预设仓库")
         .action(async ({ options, session }) => {
             const presets = await getPresetLists(config);
@@ -105,7 +144,7 @@ export function apply(ctx: Context, config: Config) {
             return `刷新预设仓库成功，快使用 chatluna.preset.list 查看吧`;
         });
 
-    ctx.command("chatluna.preset-market.download-all", "下载所有预设")
+    ctx.command("chatluna.market.download-all", "下载所有预设")
         .alias("下载所有预设")
         .action(async ({ options, session }) => {
             await session.send(
@@ -125,19 +164,12 @@ export function apply(ctx: Context, config: Config) {
                 `开始下载所有预设，总计 ${marketPresets.length} 个预设。可在控制台查看下载进度。`,
             );
 
-            const result = await downloadAllPreset(
-                ctx,
-                marketPresets,
-                ctx.chatluna.preset.resolvePresetDir(),
-            );
+            const result = await downloadAllPreset(ctx, marketPresets);
 
             await session.send(result);
         });
 
-    ctx.command(
-        "chatluna.preset-market.download <presetName:string>",
-        "下载预设",
-    )
+    ctx.command("chatluna.market.download <presetName:string>", "下载预设")
         .alias("下载预设")
         .action(async ({ options, session }, presetName) => {
             const presets = marketPresets ?? (await getPresetLists(config));
@@ -146,54 +178,91 @@ export function apply(ctx: Context, config: Config) {
 
             marketPresets = presets;
 
-            const preset = presets.find(
+            const findPresets = presets.filter(
                 (preset) =>
                     preset.name === presetName ||
                     preset.keywords.includes(presetName),
             );
 
-            if (!preset) {
+            if (findPresets.length < 1) {
                 await session.send(`没有找到预设 ${presetName}`);
                 return;
             }
 
-            let localPreset: PresetTemplate;
+            let preset: MarketPreset;
 
-            for (const presetKeyWord of preset.keywords) {
-                localPreset = await localPresetRepository.getPreset(
-                    presetKeyWord,
-                    false,
-                    false,
-                );
-            }
+            if (findPresets.length === 1) {
+                preset = findPresets[0];
+            } else {
+                const buffer = ["找到多个预设，请输入下方序号选择：\n"];
+                for (const preset of findPresets) {
+                    buffer.push(`序号：${findPresets.indexOf(preset)}`);
+                    buffer.push(`名称：${preset.name}`);
+                    buffer.push(`关键词: ${preset.keywords.join(",")}`);
+                    buffer.push(
+                        `类型: ${preset.type === "main" ? "主插件预设" : "伪装预设"}`,
+                    );
+                    buffer.push("");
+                }
 
-            if (localPreset) {
-                await session.send(
-                    `已经存在使用了同一关键词的预设 ${presetName}，回复大写 Y 则覆盖，否则取消。是否覆盖？`,
-                );
+                await session.send(buffer.join("\n"));
 
-                const input = await session.prompt(1000 * 30);
+                const index = await session.prompt(1000 * 30);
 
-                if (!input) {
+                if (!index) {
                     await session.send(`超时，已取消下载预设 ${presetName}`);
                     return;
-                } else if (input !== "Y") {
-                    await session.send(`已取消下载预设 ${presetName}`);
+                }
+
+                let indexNumber: number;
+                try {
+                    indexNumber = Number(index);
+                } catch (error) {
+                    await session.send(
+                        `输入错误，已取消下载预设 ${presetName}`,
+                    );
                     return;
+                }
+
+                preset = findPresets[indexNumber];
+            }
+
+            if (preset.type === "main") {
+                let localPreset: PresetTemplate;
+
+                for (const presetKeyWord of preset.keywords) {
+                    localPreset = await localPresetRepository.getPreset(
+                        presetKeyWord,
+                        false,
+                        false,
+                    );
+                }
+
+                if (localPreset) {
+                    await session.send(
+                        `已经存在使用了同一关键词的预设 ${presetName}，回复大写 Y 则覆盖，否则取消。是否覆盖？`,
+                    );
+
+                    const input = await session.prompt(1000 * 30);
+
+                    if (!input) {
+                        await session.send(
+                            `超时，已取消下载预设 ${presetName}`,
+                        );
+                        return;
+                    } else if (input !== "Y") {
+                        await session.send(`已取消下载预设 ${presetName}`);
+                        return;
+                    }
                 }
             }
 
-            const downloadPath = localPreset
-                ? localPreset.path
-                : localPresetRepository.resolvePresetDir() +
-                  `/${presetName}.yml`;
+            await downloadPreset(ctx, preset);
 
-            await downloadPreset(preset, downloadPath);
-
-            return `下载预设 ${presetName} 成功，快使用 chatluna.preset.list 查看吧`;
+            return `下载预设 ${presetName} 成功。`;
         });
 
-    ctx.command("chatluna.preset-market.upload", "上传预设")
+    ctx.command("chatluna.market.upload", "上传预设")
         .alias("上传预设")
         .action(async ({ options, session }) => {
             return "非常抱歉，由于我们使用 GitHub 作为预设仓库，请有需要上传预设的用户前往此仓库提交 Pull Request: https://github.com/ChatHubLab/awesome-chathub-presets";
@@ -233,18 +302,16 @@ async function getPresetList(repositoryEndpoint: string) {
 }
 
 async function getPresetLists(config: Config) {
-    const presetList: MarketPresets[] = [];
-
-    for (const repositoryEndpoint of config.repositoryEndpoints) {
-        const preset = await getPresetList(repositoryEndpoint);
-
-        presetList.push(preset);
-    }
+    const presetList: MarketPresets[] = await Promise.all(
+        config.repositoryEndpoints.map((repositoryEndpoint) =>
+            getPresetList(repositoryEndpoint),
+        ),
+    );
 
     return mergeMarketPresets(presetList);
 }
 
-async function downloadPreset(preset: MarketPreset, downloadPath: string) {
+async function downloadPreset(ctx: Context, preset: MarketPreset) {
     const { relativePath, repositoryEndpoint } = preset;
     const url = repositoryEndpoint.concat("/", relativePath);
 
@@ -252,40 +319,55 @@ async function downloadPreset(preset: MarketPreset, downloadPath: string) {
 
     const rawText = await response.text();
 
+    let downloadPath =
+        ctx.chatluna.preset.resolvePresetDir() + `/${preset.name}.yml`;
+
+    if (preset.type === "character") {
+        downloadPath =
+            ctx.chatluna.preset.resolvePresetDir() +
+            `/../character/presets/${preset.name}.yml`;
+    }
+
     await fs.writeFile(downloadPath, rawText);
 }
 
-async function downloadAllPreset(
-    ctx: Context,
-    presets: MarketPreset[],
-    presetDir: string,
-) {
+async function downloadAllPreset(ctx: Context, presets: MarketPreset[]) {
     const total = presets.length;
     let success = 0;
     let failed = 0;
 
-    for (const preset of presets) {
-        const presetName = preset.name;
-        const downloadPath =
-            ctx.chatluna.preset.resolvePresetDir() + `/${presetName}.yml`;
+    const chunkedPresets = chunkArray(presets, 6).map(async (presets) => {
+        for (const preset of presets) {
+            const presetName = preset.name;
 
-        let isSuccess = false;
-        try {
-            await downloadPreset(preset, downloadPath);
-            success++;
-            isSuccess = true;
-        } catch (error) {
-            ctx.logger.error(error);
-            if (error.cause) {
-                ctx.logger.error(error.cause);
+            let isSuccess = false;
+            try {
+                await downloadPreset(ctx, preset);
+                success++;
+                isSuccess = true;
+            } catch (error) {
+                ctx.logger.error(error);
+                if (error.cause) {
+                    ctx.logger.error(error.cause);
+                }
+                failed++;
             }
-            failed++;
-        }
 
-        ctx.logger.success(
-            `下载预设 ${presetName} ${isSuccess ? "成功" : "失败"}, 成功: ${success}, 失败: ${failed}, 总数: ${total}`,
-        );
-    }
+            ctx.logger.success(
+                `下载预设 ${presetName} ${isSuccess ? "成功" : "失败"}, 成功: ${success}, 失败: ${failed}, 总数: ${total}`,
+            );
+        }
+    });
+
+    await Promise.all(chunkedPresets);
 
     return `下载预设完成，成功: ${success}, 失败: ${failed}, 总数: ${total}`;
+}
+
+export function chunkArray<T>(arr: T[], chunkSize: number): T[][] {
+    const result: T[][] = [];
+    for (let i = 0; i < arr.length; i += chunkSize) {
+        result.push(arr.slice(i, i + chunkSize));
+    }
+    return result;
 }

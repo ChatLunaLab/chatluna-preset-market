@@ -13,9 +13,25 @@ export function mergeMarketPresets(markets: MarketPresets[]): MarketPresets {
             if (!presetMap.has(keywordString)) {
                 presetMap.set(keywordString, preset);
                 mergedMarkets.push(preset);
+            } else {
+                preset.name = preset.name + randomString(4);
+                mergedMarkets.push(preset);
             }
         }
     }
 
     return mergedMarkets;
+}
+
+function randomString(length: number): string {
+    let result = "";
+    const characters =
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    const charactersLength = characters.length;
+    for (let i = 0; i < length; i++) {
+        result += characters.charAt(
+            Math.floor(Math.random() * charactersLength),
+        );
+    }
+    return result;
 }
